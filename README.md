@@ -1,1 +1,1 @@
-My personal huffman coding & bitvec implementation
+My personal (dot)file manager (to be used together with rebos)
