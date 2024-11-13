@@ -1,5 +1,6 @@
-A (dot)file manager (intended for use in rebos). Intended File-structure:
+A (dot)file manager (intended for use in rebos)
 
+Intended File-structure:
 ```
 .config/rebos
 ├── files
