@@ -1,3 +1,5 @@
+cargo-features = ["codegen-backend"]
+
 [package]
 name = "rebos_file_manager"
 version = "0.1.0"

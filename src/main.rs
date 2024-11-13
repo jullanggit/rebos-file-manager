@@ -3,12 +3,12 @@ use std::{
     io::{stdin, stdout, ErrorKind, Write},
     os::unix::fs::symlink,
     path::{Path, PathBuf},
-    process,
+    process::{self, exit},
 };
 
 use clap::{Parser, Subcommand};
 
-const REBOS_FILES_PATH: &str = "/home/julius/.config/rebos/files/";
+const REBOS_FILES_PATH: &str = "~/.config/rebos/files/";
 
 #[derive(Parser, Debug)]
 #[command(name = "files")]
@@ -20,11 +20,22 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Commands {
     #[command(arg_required_else_help = true)]
-    Add { path: PathBuf },
+    Add {
+        /// Format: {sub-dir of ~/.config/rebos/files}/{path to symlink}.
+        /// If the path is absolute, it is automatically prepended with <DEFAULT_SUBDIR>
+        path: PathBuf,
+
+        #[arg(default_value_t = {"common".into()}, short, long)]
+        default_subdir: String,
+    },
     #[command(arg_required_else_help = true)]
-    Remove { path: PathBuf },
+    Remove {
+        /// Format: {sub-dir of ~/.config/rebos/files}/{path to symlink}
+        /// If the path is absolute, it is assumed to already be the path to remove, without trimming
+        path: PathBuf,
+    },
     #[command(arg_required_else_help = true)]
-    Trim {
+    TrimFilesSubdir {
         path: PathBuf,
         #[arg(default_value_t = false, short, long)]
         end: bool,
@@ -35,16 +46,19 @@ fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Add { path } => add(&path),
+        Commands::Add {
+            path,
+            default_subdir,
+        } => add(&path, &default_subdir),
         Commands::Remove { path } => remove(&path),
-        Commands::Trim { end, path } => {
-            let path = trim(&path);
+        Commands::TrimFilesSubdir { end, path } => {
+            let path = trim_files_subdir(&path);
             println!(
                 "{}",
                 match end {
                     true => path
                         .parent()
-                        .expect("Path shouldnt be just root or empty")
+                        .expect("Path shouldnt be just '/' or empty")
                         .display(),
                     false => path.display(),
                 }
@@ -53,9 +67,24 @@ fn main() {
     }
 }
 
-fn add(path: &Path) {
-    let origin = PathBuf::from(REBOS_FILES_PATH).join(path);
-    let link = trim(path);
+fn get_origin(path: &Path, default_subdir: &str) -> PathBuf {
+    if default_subdir.contains('/') {
+        eprintln!("Default subdir is not allowed to contain a '/'");
+        exit(1);
+    }
+
+    let mut origin = PathBuf::from(REBOS_FILES_PATH);
+
+    if path.is_absolute() {
+        origin = origin.join(default_subdir);
+    }
+
+    origin.join(path)
+}
+
+fn add(path: &Path, default_subdir: &str) {
+    let origin = get_origin(path, default_subdir);
+    let link = trim_files_subdir(path);
 
     // Check if the path already exists
     while let Ok(metadata) = symlink_metadata(&link) {
@@ -115,7 +144,7 @@ fn create_symlink(origin: &Path, link: &Path) {
 
 #[expect(clippy::wildcard_enum_match_arm)]
 fn remove(path: &Path) {
-    let path = trim(path);
+    let path = trim_files_subdir(path);
     if let Err(e) = remove_file(&path) {
         match e.kind() {
             ErrorKind::PermissionDenied => {
@@ -127,11 +156,16 @@ fn remove(path: &Path) {
     }
 }
 
-fn trim(path: &Path) -> PathBuf {
-    let root = PathBuf::from("/");
-    let path: PathBuf = path.components().skip(1).collect();
+/// Trims the subdir of files from the path. Does nothing if the path is already absolute
+fn trim_files_subdir(path: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.into()
+    } else {
+        let root = PathBuf::from("/");
+        let path: PathBuf = path.components().skip(1).collect();
 
-    root.join(path)
+        root.join(path)
+    }
 }
 
 #[expect(clippy::let_underscore_must_use)]
