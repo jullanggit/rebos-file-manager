@@ -1,4 +1,4 @@
-A (dot)file manager for rebos. Intended File-structure:
+A (dot)file manager (intended for use in rebos). Intended File-structure:
 
 ```
 .config/rebos
