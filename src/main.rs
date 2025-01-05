@@ -66,7 +66,7 @@ fn main() {
     }
 }
 
-fn get_origin(path: &Path, default_subdir: &str) -> PathBuf {
+fn get_origin(mut path: &Path, default_subdir: &str) -> PathBuf {
     if default_subdir.contains('/') {
         eprintln!("Default subdir is not allowed to contain a '/'");
         exit(1);
@@ -74,13 +74,18 @@ fn get_origin(path: &Path, default_subdir: &str) -> PathBuf {
 
     let home = env::var("HOME").expect("HOME env variable not set");
 
-    let mut origin = PathBuf::from(home).join(".config/rebos/files/");
+    let mut origin = PathBuf::from(home);
+    origin.push(".config/rebos/files/");
 
-    if path.is_absolute() {
-        origin = origin.join(default_subdir);
+    if path.starts_with("/") {
+        origin.push(default_subdir);
+
+        path = path
+            .strip_prefix("/")
+            .expect("Checked that path starts with a '/'");
     }
-
-    origin.join(path)
+    origin.push(path);
+    origin
 }
 
 fn add(path: &Path, default_subdir: &str) {
