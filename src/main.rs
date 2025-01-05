@@ -9,8 +9,6 @@ use std::{
 
 use clap::{Parser, Subcommand};
 
-const REBOS_FILES_PATH: &str = "/.config/rebos/files/";
-
 #[derive(Parser, Debug)]
 #[command(name = "files")]
 struct Cli {
@@ -76,7 +74,7 @@ fn get_origin(path: &Path, default_subdir: &str) -> PathBuf {
 
     let home = env::var("HOME").expect("HOME env variable not set");
 
-    let mut origin = PathBuf::from(home).join(REBOS_FILES_PATH);
+    let mut origin = PathBuf::from(home).join(".config/rebos/files/");
 
     if path.is_absolute() {
         origin = origin.join(default_subdir);
