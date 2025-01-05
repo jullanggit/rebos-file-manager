@@ -1,4 +1,5 @@
 use std::{
+    env,
     fs::{create_dir_all, remove_file, symlink_metadata},
     io::{stdin, stdout, ErrorKind, Write},
     os::unix::fs::symlink,
@@ -8,7 +9,7 @@ use std::{
 
 use clap::{Parser, Subcommand};
 
-const REBOS_FILES_PATH: &str = "~/.config/rebos/files/";
+const REBOS_FILES_PATH: &str = "/.config/rebos/files/";
 
 #[derive(Parser, Debug)]
 #[command(name = "files")]
@@ -73,7 +74,9 @@ fn get_origin(path: &Path, default_subdir: &str) -> PathBuf {
         exit(1);
     }
 
-    let mut origin = PathBuf::from(REBOS_FILES_PATH);
+    let home = env::var("HOME").expect("HOME env variable not set");
+
+    let mut origin = PathBuf::from(home).join(REBOS_FILES_PATH);
 
     if path.is_absolute() {
         origin = origin.join(default_subdir);
