@@ -1,9 +1,0 @@
-add = "~/.config/rebos/scripts/files add #:? || sudo /home/julius/.config/rebos/scripts/files add #:?"
-remove = "~/.config/rebos/scripts/files remove #:? || sudo /home/julius/.config/rebos/scripts/files remove #:?"
-
-plural_name = "files"
-
-hook_name = "files"
-
-[config]
-many_args = false

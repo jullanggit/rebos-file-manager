@@ -1,7 +1,7 @@
 cargo-features = ["codegen-backend"]
 
 [package]
-name = "rebos_file_manager"
+name = "dots"
 version = "0.1.0"
 edition = "2021"
 

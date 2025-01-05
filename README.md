@@ -1,10 +1,10 @@
-A (dot)file manager (intended for use in rebos)
+A (dot)file manager using symlinks (intended for use in rebos/meta)
 
 Intended File-structure:
 ```
 .config/rebos
 ├── files
-    ├── ...
+    ├── other
 │   └── common
 ├── gen.toml
 ├── imports

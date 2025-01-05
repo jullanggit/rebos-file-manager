@@ -10,7 +10,7 @@ use std::{
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
-#[command(name = "files")]
+#[command(name = "dots")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
