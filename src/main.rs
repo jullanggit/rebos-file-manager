@@ -33,12 +33,6 @@ enum Commands {
         /// If the path is absolute, it is assumed to already be the path to remove, without trimming
         path: PathBuf,
     },
-    #[command(arg_required_else_help = true)]
-    TrimFilesSubdir {
-        path: PathBuf,
-        #[arg(default_value_t = false, short, long)]
-        end: bool,
-    },
 }
 
 fn main() {
@@ -50,19 +44,6 @@ fn main() {
             default_subdir,
         } => add(&path, &default_subdir),
         Commands::Remove { path } => remove(&path),
-        Commands::TrimFilesSubdir { end, path } => {
-            let path = trim_files_subdir(&path);
-            println!(
-                "{}",
-                match end {
-                    true => path
-                        .parent()
-                        .expect("Path shouldnt be just '/' or empty")
-                        .display(),
-                    false => path.display(),
-                }
-            );
-        }
     }
 }
 
