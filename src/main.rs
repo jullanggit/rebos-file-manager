@@ -47,10 +47,10 @@ fn main() {
     }
 }
 
-    if default_subdir.contains('/') {
-        eprintln!("Default subdir is not allowed to contain a '/'");
 /// Converts the path that should be symlinked to the path in the files/ directory
 fn config_path(mut path: &Path, default_subdir: &str) -> PathBuf {
+    if Path::new(default_subdir).is_absolute() {
+        eprintln!("Default subdir is not allowed to be absolute");
         exit(1);
     }
 
