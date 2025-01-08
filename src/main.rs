@@ -47,9 +47,10 @@ fn main() {
     }
 }
 
-fn get_origin(mut path: &Path, default_subdir: &str) -> PathBuf {
     if default_subdir.contains('/') {
         eprintln!("Default subdir is not allowed to contain a '/'");
+/// Converts the path that should be symlinked to the path in the files/ directory
+fn config_path(mut path: &Path, default_subdir: &str) -> PathBuf {
         exit(1);
     }
 
