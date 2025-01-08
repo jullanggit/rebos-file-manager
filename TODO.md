@@ -1,0 +1,3 @@
+- Use the sudo crate for rerunning as root
+- Add import command
+- Allow using {hostname}
