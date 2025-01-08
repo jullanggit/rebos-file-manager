@@ -132,8 +132,8 @@ fn create_symlink(origin: &Path, link: &Path) {
 
 #[expect(clippy::wildcard_enum_match_arm)]
 fn remove(path: &Path) {
-    let path = trim_files_subdir(path);
-    if let Err(e) = remove_file(&path) {
+    let path = system_path(path);
+    if let Err(e) = remove_file(path) {
         match e.kind() {
             ErrorKind::PermissionDenied => {
                 println!("Insufficient permissions to delete symlink");
@@ -144,15 +144,19 @@ fn remove(path: &Path) {
     }
 }
 
-/// Trims the subdir of files from the path. Does nothing if the path is already absolute
-fn trim_files_subdir(path: &Path) -> PathBuf {
-    if path.is_absolute() {
-        path.into()
-    } else {
-        let root = PathBuf::from("/");
-        let path: PathBuf = path.components().skip(1).collect();
+/// Converts the path relative to files/ to the location on the actual system. (by trimming the subdir of files/ away)
+fn system_path(path: &Path) -> &Path {
+    if path.is_relative() {
+        // Skip the first component (the subdir of files/)
+        let mut components = path.components();
+        components
+            .next()
+            .expect("Path should have at least one component");
 
-        root.join(path)
+        components.as_path()
+    } else {
+        // The default subdir was elided, so the path is already the correct one
+        path
     }
 }
 
